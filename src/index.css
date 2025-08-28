@@ -1,0 +1,141 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 62.5%;
+  height: 100%;
+}
+
+body,
+#root {
+  height: 100%;
+}
+
+.App {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* Header */
+header {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: fit-content;
+  background-color: burlywood;
+  justify-content: space-between;
+  padding: 1rem 2rem;
+  align-items: center;
+  overflow: hidden;
+}
+
+.logo img {
+  height: 6rem;
+  width: auto;
+}
+
+.search-form {
+  display: flex;
+  width: 100%;
+}
+
+.search-form input {
+  height: 4rem;
+  border-radius: 5rem 0 0 5rem;
+  padding-left: 1rem;
+  display: flex;
+  flex-grow: 1;
+  border-top: 0.2rem solid rgb(187, 110, 38);
+  border-left: 0.2rem solid rgb(187, 110, 38);
+  border-bottom: 0.2rem solid rgb(187, 110, 38);
+  font-size: 2rem;
+}
+
+.search-form input:focus {
+  border-top: 0.2rem solid rgb(89, 117, 22);
+  border-left: 0.2rem solid rgb(89, 117, 22);
+  border-bottom: 0.2rem solid rgb(89, 117, 22);
+  border-right: none;
+  outline: none;
+}
+
+.search-form button {
+  border-radius: 0 5rem 5rem 0;
+  padding: 0 0.5rem;
+  font-size: 2rem;
+  width: 25%;
+  border: none;
+  border-top: 2px solid rgb(187, 110, 38);
+  border-right: 2px solid rgb(187, 110, 38);
+  border-bottom: 2px solid rgb(187, 110, 38);
+  border-left: none;
+  background-color: rgb(134, 85, 29);
+  color: white;
+}
+
+.search-form button:hover {
+  transform: scale(1.05);
+}
+
+/* Main*/
+main {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+/* Main -- tabs*/
+.user-tabs {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  gap: 1rem;
+}
+
+.tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: burlywood;
+  padding: 1rem 0;
+  border-radius: 1rem;
+}
+
+.tab:hover {
+  transform: scale(1.05);
+}
+
+.tab h2 {
+  font-size: 2.2rem;
+}
+
+/* Main -- output-container*/
+.output-container {
+  background-color: burlywood;
+  display: flex;
+  flex: 1;
+  margin: 0 1rem 1rem 1rem;
+  border-radius: 1rem;
+  padding: 1rem;
+}
+
+.output {
+  width: 100%;
+  height: 100%;
+  overflow: scroll;
+}
+
+.btn-delete {
+  background: white;
+  border: none;
+  padding: 0.5rem;
+  border-radius: 50%;
+  height: 2.5rem;
+  width: 2.5rem;
+  font-weight: bold;
+}
