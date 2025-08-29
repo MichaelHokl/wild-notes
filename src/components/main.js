@@ -50,8 +50,6 @@ function Main({ search, setSearch }) {
             return {
               url,
               title: item.data[0]?.title || "Untitled",
-              description:
-                item.data[0]?.description || "No description available.",
             };
           })
           .filter(Boolean);
@@ -117,23 +115,29 @@ function Main({ search, setSearch }) {
           {!isLoading &&
             !error &&
             (query.length === 0 ? (
-              <p className="message">
-                Start typing to explore our universe. Some suggestions are
-                "Orion Nebula" or "Sun". Both incredibly beautiful.{" "}
-              </p>
-            ) : (
-              <Output
-                query={query}
-                onSelect={handleImgSelection}
-                savedIMG={savedIMG}
+              <Msg
+                text="Start typing to explore our universe. Some suggestions are 'Orion Nebula'
+      or 'Sun'. Both incredibly beautiful."
               />
+            ) : (
+              <Output query={query}>
+                {query.map((img, i) => (
+                  <ImageCard key={i} url={img} i={i} savedIMG={savedIMG}>
+                    <AddButton
+                      onSelect={handleImgSelection}
+                      query={query}
+                      index={i}
+                    />
+                  </ImageCard>
+                ))}
+              </Output>
             ))}
         </OutputContainer>
       )}
       {savedImgsIsOpen && (
         <OutputContainer>
           {savedIMG.length === 0 ? (
-            <p className="message">No saved pictures yet.</p>
+            <Msg text="No saved pictures yet." />
           ) : (
             <SavedList saved={savedIMG} onDelete={handleDelete} />
           )}
@@ -141,6 +145,10 @@ function Main({ search, setSearch }) {
       )}
     </main>
   );
+}
+
+function Msg({ text }) {
+  return <p className="message">{text}</p>;
 }
 
 function UserTabs({ children }) {
@@ -159,22 +167,25 @@ function OutputContainer({ children }) {
   return <div className="output-container">{children}</div>;
 }
 
-function Output({ query, onSelect, savedIMG }) {
+function Output({ query, children }) {
   return (
     <div className="output">
-      <ul className="output-ul">
-        {query?.map((url, index) => (
-          <li key={index}>
-            <img src={url} alt="nasa" className="query-image" />
-            {savedIMG.includes(url) ? (
-              <p className="add-btn">Already Added</p>
-            ) : (
-              <AddButton onSelect={onSelect} query={query} index={index} />
-            )}
-          </li>
-        ))}
-      </ul>
+      <ul className="output-ul">{children}</ul>
     </div>
+  );
+}
+
+function ImageCard({ url, i, savedIMG, children }) {
+  return (
+    <li key={i}>
+      <img src={url.url} alt="nasa" className="query-image" />
+      <p className="info">{url.title}</p>
+      {savedIMG.includes(url) ? (
+        <p className="add-btn">Already Added</p>
+      ) : (
+        children
+      )}
+    </li>
   );
 }
 
@@ -199,10 +210,11 @@ function SavedList({ saved, onDelete }) {
     <ul className="output-ul">
       {saved.map((img, index) => (
         <li key={index}>
-          <img src={img} alt={"nasa"} className="query-image" />
+          <img src={img.url} alt={"nasa"} className="query-image" />
           <button className="btn-remove" onClick={() => onDelete(img)}>
             X
           </button>
+          <p className="info">{img.title}</p>
         </li>
       ))}
     </ul>
