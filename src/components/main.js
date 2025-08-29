@@ -1,41 +1,69 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 
-function Main({ search }) {
-  const [favoritesIsOpen, setFavoritesIsOpen] = useState(false);
-  const [categoriesIsOpen, setCategoriesIsOpen] = useState(false);
-
-  function handleFavoriteToggle() {
-    setFavoritesIsOpen((isOpen) => !isOpen);
-    setCategoriesIsOpen(false);
-  }
-
-  function handleCategoriesToggle() {
-    setCategoriesIsOpen((isOpen) => !isOpen);
-    setFavoritesIsOpen(false);
-  }
-  const [animal, setAnimal] = useState([]);
+function Main({ search, setSearch }) {
+  const [query, setQuery] = useState([]);
+  const [spaceImgIsOpen, setSpaceImgIsOpen] = useState(true);
+  const [savedImgsIsOpen, setSavedImgsIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [savedIMG, setSavedImg] = useState(() => {
+    const stored = localStorage.getItem("savedIMG");
+    return stored ? JSON.parse(stored) : [];
+  });
+
+  function handleSpaceImgToggle() {
+    setSpaceImgIsOpen((isOpen) => !isOpen);
+    setSavedImgsIsOpen(false);
+  }
+
+  function handleSavedImgsToggle() {
+    setSavedImgsIsOpen((isOpen) => !isOpen);
+    setSpaceImgIsOpen(false);
+  }
 
   useEffect(() => {
     const controller = new AbortController();
-    async function fetchAnimals() {
+    async function fetchData() {
       try {
+        setSpaceImgIsOpen(true);
+        setSavedImgsIsOpen(false);
         setIsLoading(true);
         setError("");
         const res = await fetch(
-          `https://api.api-ninjas.com/v1/animals?name=${search}`,
-          {
-            signal: controller.signal,
-            headers: {
-              "X-Api-Key": "Oog+IjsjGwM8A2+jmi73Tw==Moq3ZP64sDIhIxxj",
-            },
-          }
+          `https://images-api.nasa.gov/search?q=${encodeURIComponent(
+            search
+          )}&media_type=image&page_size=80`,
+          { signal: controller.signal }
         );
-        if (!res.ok) throw new Error("Something went wrong");
+        if (!res.ok) throw new Error("Something went wrong!");
         const data = await res.json();
-        console.log(data);
-        setError("");
+        const imageData = data.collection.items
+          .map((item) => {
+            const url = item.links.find(
+              (link) =>
+                (link.render === "image" && link.href.includes("medium")) ||
+                link.href.includes("orig")
+            )?.href;
+
+            if (!url) return null;
+
+            return {
+              url,
+              title: item.data[0]?.title || "Untitled",
+              description:
+                item.data[0]?.description || "No description available.",
+            };
+          })
+          .filter(Boolean);
+
+        setQuery(imageData);
+        if (imageData.length === 0) {
+          setError(`No images found for "${search}"`);
+          setQuery([]);
+        } else {
+          setQuery(imageData);
+          setError("");
+        }
       } catch (err) {
         if (err.name !== "AbortError") setError(err.message);
       } finally {
@@ -44,69 +72,73 @@ function Main({ search }) {
     }
 
     if (search.length < 3) {
-      setAnimal([]);
+      setQuery([]);
       setError("");
       return;
     }
-    fetchAnimals();
+    fetchData();
     return function () {
       controller.abort();
     };
   }, [search]);
+
+  useEffect(() => {
+    localStorage.setItem("savedIMG", JSON.stringify(savedIMG));
+  }, [savedIMG]);
+
+  function handleImgSelection(url) {
+    setSavedImg((prev) => {
+      if (prev.includes(url)) return prev;
+      return [...prev, url];
+    });
+  }
+  function handleDelete(url) {
+    setSavedImg((prev) => prev.filter((item) => item !== url));
+  }
+
   return (
     <main>
       <UserTabs>
-        <UserTab title="My favorites" onToggle={handleFavoriteToggle} />
-        <UserTab title="Categories" onToggle={handleCategoriesToggle} />
+        <UserTab
+          title="Images"
+          onToggle={handleSpaceImgToggle}
+          open={spaceImgIsOpen}
+        ></UserTab>
+        <UserTab
+          title="Saved Images"
+          onToggle={handleSavedImgsToggle}
+          open={savedImgsIsOpen}
+        />
       </UserTabs>
-      <OutputContainer>
-        {favoritesIsOpen && (
-          <Output onDelete={handleFavoriteToggle}>
-            <h2>My favorites</h2>
-            <p>
-              Far far away, behind the word mountains, far from the countries
-              Vokalia and Consonantia, there live the blind texts. Separated
-              they live in Bookmarksgrove right at the coast of the Semantics, a
-              large language ocean. A small river named Duden flows by their
-              place and supplies it with the necessary regelialia. It is a
-              paradisematic country, in which roasted parts of sentences fly
-              into your mouth. Even the all-powerful Pointing has no control
-              about the blind texts it is an almost unorthographic life One day
-              however a small line of blind text by the name of Lorem Ipsum
-              decided to leave for the far World of Grammar.{" "}
-            </p>
-          </Output>
-        )}
-        {categoriesIsOpen && (
-          <Output onDelete={handleCategoriesToggle}>
-            <h2>Categories</h2>
-            <p>
-              Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean
-              commodo ligula eget dolor. Aenean massa. Cum sociis natoque
-              penatibus et magnis dis parturient montes, nascetur ridiculus mus.
-              Donec quam felis, ultricies nec, pellentesque eu, pretium quis,
-              sem. Nulla consequat massa quis enim. Donec pede justo, fringilla
-              vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut,
-              imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede
-              mollis pretium. Integer tincidunt. Cras dapibus. Vivamus elementum
-              semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula,
-              porttitor eu, consequat vitae, eleifend ac, enim. Aliquam lorem
-              ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus
-              viverra nulla ut metus varius laoreet. Quisque rutrum. Aenean
-              imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper
-              ultricies nisi. Nam eget dui. Etiam rhoncus. Maecenas tempus,
-              tellus eget condimentum rhoncus, sem quam semper libero, sit amet
-              adipiscing sem neque sed ipsum. Nam quam nunc, blandit vel, luctus
-              pulvinar, hendrerit id, lorem. Maecenas nec odio et ante tincidunt
-              tempus. Donec vitae sapien ut libero venenatis faucibus. Nullam
-              quis ante. Etiam sit amet orci eget eros faucibus tincidunt. Duis
-              leo. Sed fringilla mauris sit amet nibh. Donec sodales sagittis
-              magna. Sed consequat, leo eget bibendum sodales, augue velit
-              cursus nunc,
-            </p>
-          </Output>
-        )}
-      </OutputContainer>
+      {spaceImgIsOpen && (
+        <OutputContainer>
+          {isLoading && <Loader />}
+          {error && <Error error={error} />}
+          {!isLoading &&
+            !error &&
+            (query.length === 0 ? (
+              <p className="message">
+                Start typing to explore our universe. Some suggestions are
+                "Orion Nebula" or "Sun". Both incredibly beautiful.{" "}
+              </p>
+            ) : (
+              <Output
+                query={query}
+                onSelect={handleImgSelection}
+                savedIMG={savedIMG}
+              />
+            ))}
+        </OutputContainer>
+      )}
+      {savedImgsIsOpen && (
+        <OutputContainer>
+          {savedIMG.length === 0 ? (
+            <p className="message">No saved pictures yet.</p>
+          ) : (
+            <SavedList saved={savedIMG} onDelete={handleDelete} />
+          )}
+        </OutputContainer>
+      )}
     </main>
   );
 }
@@ -115,9 +147,9 @@ function UserTabs({ children }) {
   return <div className="user-tabs">{children}</div>;
 }
 
-function UserTab({ title, onToggle }) {
+function UserTab({ title, onToggle, open }) {
   return (
-    <div className="tab" onClick={onToggle}>
+    <div className={open ? "tab open" : "tab"} onClick={onToggle}>
       <h2>{title}</h2>
     </div>
   );
@@ -127,14 +159,53 @@ function OutputContainer({ children }) {
   return <div className="output-container">{children}</div>;
 }
 
-function Output({ children, onDelete }) {
+function Output({ query, onSelect, savedIMG }) {
   return (
     <div className="output">
-      <button className="btn-delete" onClick={onDelete}>
-        X
-      </button>
-      {children}
+      <ul className="output-ul">
+        {query?.map((url, index) => (
+          <li key={index}>
+            <img src={url} alt="nasa" className="query-image" />
+            {savedIMG.includes(url) ? (
+              <p className="add-btn">Already Added</p>
+            ) : (
+              <AddButton onSelect={onSelect} query={query} index={index} />
+            )}
+          </li>
+        ))}
+      </ul>
     </div>
+  );
+}
+
+function Loader() {
+  return <p className="message">Loading...</p>;
+}
+
+function Error({ error }) {
+  return <p className="message">{error}</p>;
+}
+
+function AddButton({ onSelect, query, index }) {
+  return (
+    <button className="add-btn" onClick={() => onSelect(query[index])}>
+      + Save Image
+    </button>
+  );
+}
+
+function SavedList({ saved, onDelete }) {
+  return (
+    <ul className="output-ul">
+      {saved.map((img, index) => (
+        <li key={index}>
+          <img src={img} alt={"nasa"} className="query-image" />
+          <button className="btn-remove" onClick={() => onDelete(img)}>
+            X
+          </button>
+        </li>
+      ))}
+    </ul>
   );
 }
 

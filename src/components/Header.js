@@ -1,28 +1,28 @@
-function Header({ search, setSearch }) {
+function Header({ value, setInputValue, onSubmit }) {
   return (
     <header>
       <Logo />
-      <SearchForm search={search} setSearch={setSearch} />
+      <SearchForm
+        value={value}
+        setInputValue={setInputValue}
+        onSubmit={onSubmit}
+      />
     </header>
   );
 }
 
 function Logo() {
-  return (
-    <div className="logo">
-      <img src="/logo.png" alt="wild notes logo" />
-    </div>
-  );
+  return <div className="logo">Universe On Screen</div>;
 }
 
-function SearchForm({ search, setSearch }) {
+function SearchForm({ value, setInputValue, onSubmit }) {
   return (
-    <form className="search-form" onSubmit={(e) => e.preventDefault()}>
+    <form className="search-form" id="form-submit" onSubmit={onSubmit}>
       <input
         type="text"
-        placeholder="e.g. Mouse"
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
+        placeholder="e.g. Moon"
+        value={value}
+        onChange={(e) => setInputValue(e.target.value)}
       />
       <button type="submit">Search</button>
     </form>
