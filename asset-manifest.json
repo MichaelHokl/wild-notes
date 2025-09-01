@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/universe-on-screen/static/css/main.c5d9f709.css",
+    "main.js": "/universe-on-screen/static/js/main.0dfe66dd.js",
+    "index.html": "/universe-on-screen/index.html",
+    "main.c5d9f709.css.map": "/universe-on-screen/static/css/main.c5d9f709.css.map",
+    "main.0dfe66dd.js.map": "/universe-on-screen/static/js/main.0dfe66dd.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.c5d9f709.css",
+    "static/js/main.0dfe66dd.js"
+  ]
+}
