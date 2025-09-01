@@ -1,4 +1,14 @@
-import { useState, useEffect, use } from "react";
+import { useState, useEffect } from "react";
+import AddButton from "./AddButton";
+import UserTabs from "./UserTabs";
+import UserTab from "./UserTab";
+import OutputContainer from "./OutputContainer";
+import Output from "./Output";
+import ImageCard from "./ImageCard";
+import SavedList from "./SavedList";
+import Loader from "./Loader";
+import Error from "./Error";
+import Msg from "./Msg";
 
 function Main({ search, setSearch }) {
   const [query, setQuery] = useState([]);
@@ -144,80 +154,6 @@ function Main({ search, setSearch }) {
         </OutputContainer>
       )}
     </main>
-  );
-}
-
-function Msg({ text }) {
-  return <p className="message">{text}</p>;
-}
-
-function UserTabs({ children }) {
-  return <div className="user-tabs">{children}</div>;
-}
-
-function UserTab({ title, onToggle, open }) {
-  return (
-    <div className={open ? "tab open" : "tab"} onClick={onToggle}>
-      <h2>{title}</h2>
-    </div>
-  );
-}
-
-function OutputContainer({ children }) {
-  return <div className="output-container">{children}</div>;
-}
-
-function Output({ query, children }) {
-  return (
-    <div className="output">
-      <ul className="output-ul">{children}</ul>
-    </div>
-  );
-}
-
-function ImageCard({ url, i, savedIMG, children }) {
-  return (
-    <li key={i}>
-      <img src={url.url} alt="nasa" className="query-image" />
-      <p className="info">{url.title}</p>
-      {savedIMG.includes(url) ? (
-        <p className="add-btn">Already Added</p>
-      ) : (
-        children
-      )}
-    </li>
-  );
-}
-
-function Loader() {
-  return <p className="message">Loading...</p>;
-}
-
-function Error({ error }) {
-  return <p className="message">{error}</p>;
-}
-
-function AddButton({ onSelect, query, index }) {
-  return (
-    <button className="add-btn" onClick={() => onSelect(query[index])}>
-      + Save Image
-    </button>
-  );
-}
-
-function SavedList({ saved, onDelete }) {
-  return (
-    <ul className="output-ul">
-      {saved.map((img, index) => (
-        <li key={index}>
-          <img src={img.url} alt={"nasa"} className="query-image" />
-          <button className="btn-remove" onClick={() => onDelete(img)}>
-            X
-          </button>
-          <p className="info">{img.title}</p>
-        </li>
-      ))}
-    </ul>
   );
 }
 
